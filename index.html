@@ -3,41 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>鑑定入力パネル</title>
+  <title>鑑定入力パネル v2</title>
   <style>
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f7f7;margin:0;padding:20px;color:#222}
-    .wrap{max-width:640px;margin:0 auto;background:#fff;border-radius:16px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
-    h1{font-size:22px;margin-top:0}
-    label{display:block;margin:14px 0 6px;font-weight:700}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f7f7;margin:0;padding:16px;color:#222}
+    .wrap{max-width:680px;margin:0 auto;background:#fff;border-radius:16px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+    h1{font-size:20px;margin:0 0 10px}
+    label{display:block;margin:12px 0 6px;font-weight:700}
     input,select,textarea,button{width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:12px;padding:12px;font-size:16px}
-    textarea{min-height:120px;resize:vertical}
-    button{background:#111;color:#fff;border:none;font-weight:700;cursor:pointer;margin-top:14px}
+    textarea{min-height:90px;resize:vertical}
+    button{background:#111;color:#fff;border:none;font-weight:700;cursor:pointer;margin-top:12px}
     button.secondary{background:#666}
-    pre{white-space:pre-wrap;background:#fafafa;border:1px solid #eee;border-radius:12px;padding:14px;margin-top:16px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    pre{white-space:pre-wrap;background:#fafafa;border:1px solid #eee;border-radius:12px;padding:12px;margin-top:12px}
+    .small{font-size:12px;color:#777;margin-top:4px}
+    .counter{font-size:12px;color:#999;text-align:right;margin-top:4px}
+    .warn{color:#c0392b}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>本音と流れを視る 鑑定入力</h1>
+    <h1>本音と流れを視る 鑑定入力 v2</h1>
+
     <label>生年月日</label>
     <input id="birth" type="date" />
 
-    <label>相談ジャンル</label>
-    <select id="genre">
-      <option>恋愛</option><option>結婚</option><option>仕事</option><option>転職</option><option>お金</option><option>人間関係</option><option>家族</option><option>健康</option><option>総合</option>
-    </select>
-
-    <label>価格帯</label>
-    <select id="price">
-      <option>無料</option><option>500円</option><option>3000円</option><option>10000円</option>
-    </select>
+    <div class="row">
+      <div>
+        <label>相談ジャンル</label>
+        <select id="genre">
+          <option>恋愛</option><option>結婚</option><option>仕事</option><option>転職</option><option>お金</option><option>人間関係</option><option>家族</option><option>健康</option><option>総合</option>
+        </select>
+      </div>
+      <div>
+        <label>価格帯</label>
+        <select id="price" onchange="checkLength()">
+          <option>無料</option><option>500円</option><option>3000円</option><option>10000円</option>
+        </select>
+      </div>
+    </div>
 
     <label>相談内容</label>
-    <textarea id="content" placeholder="ここに相談内容"></textarea>
+    <textarea id="content" placeholder="ここに相談内容" oninput="checkLength()"></textarea>
+    <div id="lenInfo" class="counter">0文字</div>
+
+    <label>相手情報（任意）</label>
+    <textarea id="partner"></textarea>
+
+    <label>今の状況（任意）</label>
+    <textarea id="situation"></textarea>
+
+    <label>最近失ったもの（任意）</label>
+    <textarea id="lost"></textarea>
+
+    <label>最近執着しているもの（任意）</label>
+    <textarea id="obsession"></textarea>
+
+    <label>一番怖いこと（任意）</label>
+    <textarea id="fear"></textarea>
 
     <button onclick="generate()">生成</button>
     <button class="secondary" onclick="copyText()">コピー</button>
 
+    <div class="small">※上：計算確認用 / 下：鑑定用コピペ</div>
+    <pre id="calc">ここに計算が出ます</pre>
     <pre id="output">ここに生成されます</pre>
   </div>
 
@@ -46,18 +74,49 @@ function reduceNum(n){ while(n >= 10){ n = String(n).split('').reduce((a,b)=>a+N
 function mapElement(n){ const map={1:'木',2:'火',3:'土',4:'金',5:'水',6:'木',7:'火',8:'土',9:'金',0:'水'}; return map[n]; }
 function season(m){ if(m>=3&&m<=5)return '春'; if(m>=6&&m<=8)return '夏'; if(m>=9&&m<=11)return '秋'; return '冬'; }
 function yinYang(d){ return d%2===1?'陽':'陰'; }
-function generate(){
-  const birth=document.getElementById('birth').value;
-  if(!birth){ alert('生年月日を入力'); return; }
-  const [y,m,d]=birth.split('-').map(Number);
+
+function calcPart(y,m,d){
   const nums=(String(y)+String(m).padStart(2,'0')+String(d).padStart(2,'0')).split('').map(Number);
   const sum=nums.reduce((a,b)=>a+b,0);
   const core=reduceNum(sum);
   const yearFlow=reduceNum(new Date().getFullYear().toString().split('').reduce((a,b)=>a+Number(b),0));
-  const text=`【命術計算】\n計算式：${nums.join('+')}=${sum}${sum>=10?'→'+core:''}\n核数：${core}\n五行：${mapElement(core)}\n季節：${season(m)}\n陰陽：${yinYang(d)}\n今年の流れ：${yearFlow}（${mapElement(yearFlow)}）\n\n相談ジャンル：${document.getElementById('genre').value}\n価格帯：${document.getElementById('price').value}\n相談内容：${document.getElementById('content').value}`;
-  document.getElementById('output').textContent=text;
+  return {
+    text:`【命術計算】\n計算式：${nums.join('+')}=${sum}${sum>=10?'→'+core:''}\n核数：${core}\n五行：${mapElement(core)}\n季節：${season(m)}\n陰陽：${yinYang(d)}\n今年の流れ：${yearFlow}（${mapElement(yearFlow)}）`,
+    core, yFlow:yearFlow
+  }
 }
-function copyText(){ navigator.clipboard.writeText(document.getElementById('output').textContent); alert('コピーしました'); }
+
+function generate(){
+  const birth=document.getElementById('birth').value;
+  if(!birth){ alert('生年月日を入力'); return; }
+  const [y,m,d]=birth.split('-').map(Number);
+  const calc=calcPart(y,m,d);
+
+  document.getElementById('calc').textContent = calc.text;
+
+  const text=`${calc.text}\n\n相談ジャンル：${document.getElementById('genre').value}\n価格帯：${document.getElementById('price').value}\n相談内容：${document.getElementById('content').value}\n\n任意情報：\n相手情報：${document.getElementById('partner').value}\n今の状況：${document.getElementById('situation').value}\n最近失ったもの：${document.getElementById('lost').value}\n最近執着しているもの：${document.getElementById('obsession').value}\n一番怖いこと：${document.getElementById('fear').value}`;
+
+  document.getElementById('output').textContent=text;
+  checkLength();
+}
+
+function copyText(){
+  navigator.clipboard.writeText(document.getElementById('output').textContent);
+  alert('コピーしました');
+}
+
+function checkLength(){
+  const price=document.getElementById('price').value;
+  const len=document.getElementById('content').value.length;
+  const info=document.getElementById('lenInfo');
+  info.textContent = len + '文字';
+  info.classList.remove('warn');
+
+  if(price==='無料' && len>280){
+    info.textContent += '（無料は280文字以内）';
+    info.classList.add('warn');
+  }
+}
 </script>
 </body>
 </html>
