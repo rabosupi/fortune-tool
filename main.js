@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
             name: document.getElementById('name').value,
             birthdate: formattedDate.db,
             genre: document.getElementById('genre').value,
-            treasure: document.getElementById('treasure').value,
+            treasure: document.getElementById('treasure')?.value || '',
             fear: document.getElementById('fear')?.value || '',
             consultation: document.getElementById('consultation').value,
             plan: currentPlan.name,
