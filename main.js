@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // プラン設定のマッピング（文面の「次の扉」の世界観に合わせて更新）
     const PLAN_CONFIG = {
-        'trial': { name: '簡易鑑定（入り口の対話）', color: 0x95a5a6, needOrder: false },
+        'trial': { name: '入り口の対話（簡易鑑定）', color: 0x95a5a6, needOrder: false },
         'std-r8b': { name: '通常鑑定（本音の扉）', color: 0x2ecc71, needOrder: true },
         'adv-q2w': { name: '深層鑑定（真実の扉）', color: 0x3498db, needOrder: true },
         'prm-z5v': { name: '最深層鑑定（宿命の扉）', color: 0xf1c40f, needOrder: true }
@@ -27,8 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const initForm = () => {
         const titleEl = document.getElementById('form-title');
         const planInp = document.getElementById('plan');
-        const orderIdGroup = document.getElementById('order-id-group');
-        const orderIdInput = document.getElementById('order_id');
         
         // ラベル切り替え用の要素取得
         const nameLabel = document.querySelector('label[for="name"]');
@@ -37,20 +35,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (titleEl) titleEl.innerText = currentPlan.name;
         if (planInp) planInp.value = currentPlan.name;
         
-        if (orderIdGroup && orderIdInput) {
-            if (currentPlan.needOrder) {
-                // 有料プラン（ココナラ）の設定
-                orderIdGroup.style.display = 'flex';
-                orderIdInput.required = true;
-                if (nameLabel) nameLabel.innerHTML = 'お名前（ニックネーム可） <span class="tag-required" style="color:var(--error); font-size:0.7rem;">(必須)</span>';
-                if (nameInput) nameInput.placeholder = '例：匿名希望';
-            } else {
-                // 無料プラン（note/Threads）の設定
-                orderIdGroup.style.display = 'none';
-                orderIdInput.required = false;
-                if (nameLabel) nameLabel.innerHTML = 'ThreadsID <span class="tag-required" style="color:var(--error); font-size:0.7rem;">(必須)</span>';
-                if (nameInput) nameInput.placeholder = '例：@username';
-            }
+        if (currentPlan.needOrder) {
+            // 有料プラン（ココナラ）の設定
+            if (nameLabel) nameLabel.innerHTML = 'お名前（ニックネーム可） <span class="tag-required" style="color:var(--error); font-size:0.7rem;">(必須)</span>';
+            if (nameInput) nameInput.placeholder = '例：匿名希望';
+        } else {
+            // 無料プラン（note/Threads）の設定
+            if (nameLabel) nameLabel.innerHTML = 'ThreadsID <span class="tag-required" style="color:var(--error); font-size:0.7rem;">(必須)</span>';
+            if (nameInput) nameInput.placeholder = '例：@username';
         }
     };
     initForm();
@@ -100,11 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 有料プラン時の注文IDチェック
-        const orderId = document.getElementById('order_id').value.trim();
-        if (currentPlan.needOrder && orderId.length < 4) {
-            alert('注文ID（頭4文字）を入力してください');
-            return;
-        }
+
 
         const submitBtn = document.getElementById('submit-btn');
         submitBtn.disabled = true;
@@ -117,8 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             treasure: document.getElementById('treasure')?.value || '',
             fear: document.getElementById('fear')?.value || '',
             consultation: document.getElementById('consultation').value,
-            plan: currentPlan.name,
-            order_id: orderId
+            plan: currentPlan.name
         };
 
         const { error } = await supabaseClient
