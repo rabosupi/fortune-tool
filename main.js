@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // プラン設定のマッピング（文面の「次の扉」の世界観に合わせて更新）
     const PLAN_CONFIG = {
-        'trial': { name: '入り口の対話（簡易鑑定）', color: 0x95a5a6, needOrder: false },
+        'trial': { name: '入り口の対話（簡易鑑定）', displayName: '入り口の対話<br>（簡易鑑定）', color: 0x95a5a6, needOrder: false },
         'std-r8b': { name: '通常鑑定（本音の扉）', color: 0x2ecc71, needOrder: true },
         'adv-q2w': { name: '深層鑑定（真実の扉）', color: 0x3498db, needOrder: true },
         'prm-z5v': { name: '最深層鑑定（宿命の扉）', color: 0xf1c40f, needOrder: true }
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nameLabel = document.querySelector('label[for="name"]');
         const nameInput = document.getElementById('name');
 
-        if (titleEl) titleEl.innerText = currentPlan.name;
+        if (titleEl) titleEl.innerHTML = currentPlan.displayName || currentPlan.name;
         if (planInp) planInp.value = currentPlan.name;
         
         if (currentPlan.needOrder) {
@@ -126,12 +126,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const formContainer = document.querySelector('.form-container');
         const successScreen = document.getElementById('success-screen');
         const successMsg = document.getElementById('success-message');
+        const threadsExitBtn = document.getElementById('threads-exit-btn');
 
         // メッセージの出し分け
         if (currentPlan.needOrder) {
             successMsg.innerText = 'ご購入ありがとうございました。鑑定結果はココナラのトークルームにてお届けいたします。';
+            threadsExitBtn.classList.add('hidden');
         } else {
             successMsg.innerText = 'ご依頼ありがとうございました。鑑定結果はThreadsのメッセージにてお届けしますので、今しばらくお待ちください。';
+            threadsExitBtn.classList.remove('hidden');
         }
 
         // フェードアウト

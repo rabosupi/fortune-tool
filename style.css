@@ -261,6 +261,15 @@ select {
     cursor: pointer;
 }
 
+.threads-exit-btn {
+    display: inline-block;
+    background: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    color: #fff;
+    text-decoration: none;
+    margin-bottom: 1rem;
+}
+
 .hidden { display: none; }
 
 @keyframes fadeIn {
