@@ -197,6 +197,12 @@ select {
 #month { width: 60px; text-align: left !important; padding-left: 0.8rem !important; }
 #day { width: 60px; text-align: left !important; padding-left: 0.8rem !important; }
 
+.birthday-note {
+    font-size: 0.7rem;
+    color: var(--text-sub);
+    margin-top: 0.4rem;
+}
+
 /* ジャンル専用 */
 select {
     text-align-last: left !important;

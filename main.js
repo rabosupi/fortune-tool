@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // プラン設定のマッピング（文面の「次の扉」の世界観に合わせて更新）
     const PLAN_CONFIG = {
-        'trial': { name: '入り口の対話（簡易鑑定）', displayName: '入り口の対話<br>（簡易鑑定）', color: 0x95a5a6, needOrder: false },
+        'trial': { name: '入り口の対話', displayName: '入り口の対話', color: 0x95a5a6, needOrder: false },
         'std-r8b': { name: '通常鑑定（本音の扉）', color: 0x2ecc71, needOrder: true },
         'adv-q2w': { name: '深層鑑定（真実の扉）', color: 0x3498db, needOrder: true },
         'prm-z5v': { name: '最深層鑑定（宿命の扉）', color: 0xf1c40f, needOrder: true }
